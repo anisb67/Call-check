@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fichier Propriétaires</title>
+<meta name="theme-color" content="#c2861a">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Figtree:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<style>
+:root{--bg:#f3f4f7;--surface:#fff;--fg:#17202e;--muted:#5d6676;--line:#dde1e8;--accent:#c2861a;--accent-ink:#1b1405;--accent-soft:#f6ead2;
+--ok:#1f7a4d;--ok-soft:#dcf1e5;--warn:#a4560d;--warn-soft:#fbe7d3;--bad:#9e2f2f;--bad-soft:#f6dcdc;--info:#2b5aa8;--info-soft:#dfe8f8;
+--fd:"Bricolage Grotesque",system-ui,sans-serif;--fb:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;--fm:"JetBrains Mono",ui-monospace,Menlo,monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#10141b;--surface:#181e28;--fg:#e8ebf1;--muted:#97a0b0;--line:#2a323f;--accent:#e4a73a;--accent-soft:#3a2d14;
+--ok:#6fd19c;--ok-soft:#173326;--warn:#f0a861;--warn-soft:#3a2614;--bad:#ef8a8a;--bad-soft:#3b1d1d;--info:#8fb3f0;--info-soft:#1b2a44;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--fb)}
+.wrap{max-width:680px;margin:0 auto;padding:20px 16px 48px;display:flex;flex-direction:column;gap:18px}
+h1{font:800 26px/1.1 var(--fd);margin:0}
+.sub{margin:4px 0 0;color:var(--muted);font-size:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.lbl{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+#q{font:500 22px var(--fm);padding:12px 14px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);width:100%}
+#q:focus{outline:none;border-color:var(--accent)}
+input,select,textarea{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%}
+textarea{min-height:60px;resize:vertical}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+button{font:600 15px var(--fb);border:0;border-radius:10px;padding:11px 16px;cursor:pointer}
+.primary{background:var(--accent);color:var(--accent-ink)} .ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.link{background:none;padding:0;color:var(--accent);font-size:13px}
+button:disabled{opacity:.5}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.err{font-size:13px;color:var(--bad);margin:0}
+.v{border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;border:1px solid var(--line);background:var(--surface)}
+.v.taken{border-color:var(--bad);background:var(--bad-soft)} .v.free{border-color:var(--ok);background:var(--ok-soft)}
+.v h2{margin:0;font:800 20px var(--fd)} .v.taken h2{color:var(--bad)} .v.free h2{color:var(--ok)}
+.ph{font:500 15px var(--fm);font-variant-numeric:tabular-nums}
+dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0;font-size:14px} dt{color:var(--muted)} dd{margin:0;overflow-wrap:anywhere}
+form.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px} .full{grid-column:1/-1}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0} .f span{font-size:12px;font-weight:600;color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{background:var(--surface);border:1px solid var(--line);color:var(--muted);padding:7px 12px;border-radius:999px;font-size:13px}
+.tab.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.list{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.it{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:12px 14px;border-top:1px solid var(--line);cursor:pointer}
+.it:first-child{border-top:0} .it:hover{background:var(--bg)}
+.who{grid-column:1/-1;font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.pill{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap;align-self:start}
+.p0{background:var(--info-soft);color:var(--info)} .p1{background:var(--warn-soft);color:var(--warn)}
+.p2{background:var(--accent-soft);color:var(--accent)} .p3{background:var(--bad-soft);color:var(--bad)} .p4{background:var(--ok-soft);color:var(--ok)}
+.late{color:var(--bad);font-weight:600}
+.empty{padding:26px 18px;text-align:center;color:var(--muted);font-size:14px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.me{font-size:13px;color:var(--muted);text-align:right}
+[hidden]{display:none!important}
+@media (max-width:420px){form.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Connexion -->
+  <form id="login" class="card" hidden>
+    <h1>Fichier Propriétaires</h1>
+    <p class="sub">Connecte-toi avec l’email et le mot de passe donnés par ton responsable.</p>
+    <label class="f"><span>Email</span><input id="email" type="email" autocomplete="username" required></label>
+    <label class="f"><span>Mot de passe</span><input id="pass" type="password" autocomplete="current-password" required></label>
+    <p class="err" id="loginErr" hidden></p>
+    <div class="row"><button class="primary" id="loginBtn" type="submit">Se connecter</button></div>
+  </form>
+
+  <!-- App -->
+  <div id="app" hidden style="display:flex;flex-direction:column;gap:18px">
+    <div class="top">
+      <div><h1>Fichier Propriétaires</h1><p class="sub">Vérifie le numéro avant chaque appel.</p></div>
+      <div class="me"><span id="meName"></span><br><button class="link" id="logout" type="button">Se déconnecter</button></div>
+    </div>
+    <section class="card">
+      <label class="lbl" for="q">Numéro du propriétaire</label>
+      <input id="q" type="tel" inputmode="tel" autocomplete="off" placeholder="0550 12 34 56">
+      <p class="hint" id="sync">Chargement…</p>
+    </section>
+    <section id="verdict" class="v" hidden aria-live="polite"></section>
+    <div class="row" style="justify-content:space-between">
+      <div class="tabs">
+        <button class="tab on" data-f="all" type="button">Tous</button>
+        <button class="tab" data-f="mine" type="button">Mes contacts</button>
+        <button class="tab" data-f="rappel" type="button">À rappeler</button>
+        <button class="tab" data-f="mandat" type="button">Mandats</button>
+      </div>
+      <span class="hint" id="count"></span>
+    </div>
+    <div class="list" id="list"></div>
+  </div>
+</div>
+
+<script>
+// ===== À REMPLIR : Supabase > Project Settings > API =====
+const SUPABASE_URL = "https://cijwyvumyrajkvuvyldr.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_Lz5Yjdh2oWBurqGcr-d3hQ_kcSBRRLY";
+// ==========================================================
+
+const STATUTS=["Appelé","À rappeler","Intéressé","Pas intéressé","Mandat signé"];
+const TYPES=["Appartement","Villa","Terrain","Local commercial","Immeuble","Autre"];
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let ME="", rows=[], filter="all", editing=null, channel=null;
+
+const $=s=>document.querySelector(s);
+const el=(t,p={},k=[])=>{const n=document.createElement(t);for(const[a,v]of Object.entries(p)){if(a==="text")n.textContent=v;else if(a==="cls")n.className=v;else n.setAttribute(a,v);}[].concat(k).forEach(c=>c&&n.append(c));return n;};
+function norm(r){let d=String(r||"").replace(/\D/g,"");if(d.startsWith("00213"))d=d.slice(5);else if(d.startsWith("213"))d=d.slice(3);if(d&&d[0]!=="0")d="0"+d;return d;}
+function pretty(p){return p.length===10?p.replace(/(\d{4})(\d{2})(\d{2})(\d{2})/,"$1 $2 $3 $4"):p.replace(/(\d{3})(\d{2})(\d{2})(\d{2})/,"$1 $2 $3 $4");}
+function frDate(d){if(!d)return"";const[y,m,j]=String(d).slice(0,10).split("-");return j?`${j}/${m}/${y}`:d;}
+function frDateTime(ts){if(!ts)return"";const d=new Date(ts);return d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"})+" "+d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});}
+function today(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function who(email){if(!email)return"Inconnu";if(email===ME)return"Toi";const n=email.split("@")[0];return n.charAt(0).toUpperCase()+n.slice(1);}
+function pillCls(s){const i=STATUTS.indexOf(s);return "pill p"+(i<0?0:i);}
+
+// ===== Connexion =====
+$("#login").addEventListener("submit",async e=>{
+  e.preventDefault(); $("#loginBtn").disabled=true; $("#loginErr").hidden=true;
+  const {error}=await sb.auth.signInWithPassword({email:$("#email").value.trim(),password:$("#pass").value});
+  $("#loginBtn").disabled=false;
+  if(error){$("#loginErr").textContent="Email ou mot de passe incorrect.";$("#loginErr").hidden=false;}
+});
+$("#logout").addEventListener("click",()=>sb.auth.signOut());
+
+sb.auth.onAuthStateChange((_ev,session)=>{
+  if(session){ if(ME!==session.user.email){ ME=session.user.email; start(); } }
+  else { ME=""; if(channel){sb.removeChannel(channel);channel=null;} $("#app").hidden=true; $("#login").hidden=false; }
+});
+
+// ===== Données =====
+async function load(){
+  const {data,error}=await sb.from("proprietaires").select("*").order("maj_le",{ascending:false}).limit(5000);
+  if(error){ $("#sync").textContent="Connexion impossible. Vérifie ta connexion internet."; return; }
+  rows=data; $("#sync").textContent="À jour · "+new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+  renderList(); if(!editing) renderVerdict();
+}
+function start(){
+  $("#login").hidden=true; $("#app").hidden=false; $("#meName").textContent=ME;
+  load();
+  channel=sb.channel("proprio").on("postgres_changes",{event:"*",schema:"public",table:"proprietaires"},()=>load()).subscribe();
+}
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden && ME) load(); });
+setInterval(()=>{ if(ME) load(); },60000);
+
+// ===== Liste =====
+function filtered(){
+  const l=rows.filter(r=>filter==="mine"?r.agent===ME:filter==="rappel"?r.statut==="À rappeler":filter==="mandat"?r.statut==="Mandat signé":true);
+  if(filter==="rappel") l.sort((a,b)=>String(a.rappel||"9").localeCompare(String(b.rappel||"9")));
+  return l;
+}
+function renderList(){
+  const l=filtered(); $("#count").textContent=`${l.length} / ${rows.length}`;
+  if(!l.length){ $("#list").replaceChildren(el("div",{cls:"empty",text:rows.length?"Rien dans ce filtre.":"Aucun propriétaire pour l’instant. Tape un numéro en haut pour enregistrer ton premier appel."})); return; }
+  const t=today();
+  $("#list").replaceChildren(...l.map(r=>{
+    const w=el("span",{cls:"who"}); w.append([who(r.agent),frDate(r.maj_le),r.nom,r.quartier,r.type_bien].filter(Boolean).join(" · "));
+    if(r.statut==="À rappeler"&&r.rappel){w.append(" · ");w.append(el("span",{cls:r.rappel<=t?"late":"",text:"rappel le "+frDate(r.rappel)}));}
+    const d=el("div",{cls:"it",tabindex:"0"},[el("span",{cls:"ph",text:pretty(r.tel)}),el("span",{cls:pillCls(r.statut),text:r.statut}),w]);
+    const open=()=>{$("#q").value=pretty(r.tel);editing=null;renderVerdict();scrollTo({top:0,behavior:"smooth"});};
+    d.addEventListener("click",open); d.addEventListener("keydown",e=>{if(e.key==="Enter")open();});
+    return d;
+  }));
+}
+
+// ===== Fiche =====
+const fld=(l,c,full)=>el("label",{cls:"f"+(full?" full":"")},[el("span",{text:l}),c]);
+function sel(id,opts,val,blank){const s=el("select",{id});if(blank)s.append(el("option",{value:"",text:"—"}));opts.forEach(o=>{const x=el("option",{value:o,text:o});if(o===val)x.selected=true;s.append(x);});return s;}
+
+function renderVerdict(note){
+  const v=$("#verdict"), tel=norm($("#q").value);
+  if(tel.length<9){v.hidden=true;return;}
+  const r=rows.find(x=>x.tel===tel); v.hidden=false;
+
+  if(r&&editing!==tel){
+    v.className="v taken"; const dl=el("dl");
+    const add=(k,x)=>{if(x)dl.append(el("dt",{text:k}),el("dd",{text:x}));};
+    add("Responsable",who(r.agent));
+    add("Statut",r.statut+(r.statut==="À rappeler"&&r.rappel?" · le "+frDate(r.rappel):""));
+    add("Propriétaire",r.nom); add("Quartier",r.quartier); add("Bien",r.type_bien);
+    add("Premier contact",frDateTime(r.cree_le));
+    add("Mise à jour",frDateTime(r.maj_le)+(r.maj_par&&r.maj_par!==r.agent?" par "+who(r.maj_par):""));
+    add("Note",r.note);
+    const b=el("button",{cls:"ghost",type:"button",text:"Mettre à jour le suivi"}); b.onclick=()=>{editing=tel;renderVerdict();};
+    const kids=[el("h2",{text:"Déjà contacté — n’appelle pas"}),el("div",{cls:"ph",text:pretty(tel)}),dl,el("div",{cls:"row"},[b])];
+    if(note) kids.push(el("p",{cls:"hint",text:note}));
+    v.replaceChildren(...kids); return;
+  }
+
+  v.className=r?"v":"v free";
+  const nom=el("input",{id:"fNom",autocomplete:"off"});nom.value=r?.nom||"";
+  const qu=el("input",{id:"fQ",autocomplete:"off",placeholder:"Hydra, Kouba…"});qu.value=r?.quartier||"";
+  const ty=sel("fT",TYPES,r?.type_bien,true), st=sel("fS",STATUTS,r?.statut||"Appelé");
+  const rp=el("input",{id:"fR",type:"date"});rp.value=r?.rappel||""; const rpw=fld("Date de rappel",rp);
+  const no=el("textarea",{id:"fN",placeholder:"Prix demandé, disponibilités…"});no.value=r?.note||"";
+  const sync=()=>rpw.hidden=st.value!=="À rappeler"; st.onchange=sync; sync();
+  const err=el("p",{cls:"err full"});err.hidden=true;
+  const save=el("button",{cls:"primary",type:"submit",text:r?"Enregistrer":"Enregistrer l’appel"}); const acts=[save];
+  if(r){const c=el("button",{cls:"ghost",type:"button",text:"Annuler"});c.onclick=()=>{editing=null;renderVerdict();};acts.push(c);}
+  const f=el("form",{cls:"grid"},[fld("Nom",nom),fld("Quartier",qu),fld("Type de bien",ty),fld("Statut",st),rpw,fld("Note",no,true),el("div",{cls:"row full"},acts),err]);
+
+  f.onsubmit=async e=>{
+    e.preventDefault(); save.disabled=true; err.hidden=true;
+    const body={nom:nom.value.trim(),quartier:qu.value.trim(),type_bien:ty.value,statut:st.value,
+      rappel:st.value==="À rappeler"&&rp.value?rp.value:null,note:no.value.trim()};
+    const {error}= r
+      ? await sb.from("proprietaires").update(body).eq("tel",tel)
+      : await sb.from("proprietaires").insert({tel,...body});
+    if(error && error.code==="23505"){ editing=null; await load(); renderVerdict("Un collègue venait de l’enregistrer juste avant toi."); return; }
+    if(error){ save.disabled=false; err.textContent="Enregistrement impossible. Vérifie ta connexion et réessaie."; err.hidden=false; return; }
+    editing=null; await load();
+  };
+
+  const kids=[el("h2",{text:r?"Mettre à jour le suivi":"Personne ne l’a appelé"}),el("div",{cls:"ph",text:pretty(tel)})];
+  if(!r) kids.push(el("p",{cls:"hint",text:"Appelle-le, puis enregistre-le ici pour que l’équipe ne le rappelle pas."}));
+  kids.push(f); v.replaceChildren(...kids);
+}
+
+$("#q").addEventListener("input",()=>{editing=null;renderVerdict();});
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{filter=b.dataset.f;document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===b));renderList();});
+
+// Démarrage : si déjà connecté, l'app s'ouvre directement
+sb.auth.getSession().then(({data})=>{ if(!data.session){ $("#login").hidden=false; } });
+</script>
+</body>
+</html>
